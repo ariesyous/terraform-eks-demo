@@ -75,11 +75,15 @@ Step 4. This step is *optional*, but **highly recommended**.  For security, it's
     cluster_endpoint_public_access_cidrs  =  ["1.2.3.4/32"]
 
 
-Step 5. Do a terraform plan followed by terraform apply to deploy the AWS infrastructure.
+Step 5. Step 5. From the root of the repository folder, do a terraform init to pull all needed Terraform modules, followed by terraform plan and apply to deploy the AWS infrastructure. You can optionally specify a unique environment for each cluster if you'd prefer (eg, dev, stage, prod), but default will be dev if you omit the variable.
 
+    terraform init
+    
     terraform plan -var="env=dev"
     
     terraform apply -var="env=dev" 
+
+This will take about 5-10 minutes to set up all necessary components, including the Kubernetes cluster itself.
 
 Step 6. Once cluster is up, refresh your kubectl credentials check the nodes being online through kubectl get nodes, include instructions on how to set this up locally.
 
