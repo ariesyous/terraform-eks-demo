@@ -1,0 +1,124 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CoreInfra",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:*",
+        "eks:*",
+        "autoscaling:*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "IAMManagement",
+      "Effect": "Allow",
+      "Action": [
+        "iam:PassRole",
+        "iam:GetRole",
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:CreatePolicy",
+        "iam:DeletePolicy",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:GetPolicy",
+        "iam:PutRolePolicy",          
+        "iam:DeleteRolePolicy",
+        "iam:GetRolePolicy",      
+        "iam:ListAttachedRolePolicies",
+        "iam:GetPolicyVersion",
+        "iam:ListPolicyVersions",
+        "iam:ListInstanceProfilesForRole",
+        "iam:CreateServiceLinkedRole",
+        "iam:CreateServiceLinkedRole",
+        "iam:CreateInstanceProfile",      
+        "iam:DeleteInstanceProfile",
+        "iam:GetInstanceProfile",        
+        "iam:ListInstanceProfiles",
+        "iam:AddRoleToInstanceProfile",     
+        "iam:RemoveRoleFromInstanceProfile",
+        "iam:TagRole"        
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:DescribeLogGroups",
+        "logs:DeleteLogGroup",
+        "logs:TagResource",
+        "logs:PutRetentionPolicy",
+        "logs:ListTagsForResource"        
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "KMSManagement",
+      "Effect": "Allow",
+      "Action": [
+        "kms:CreateKey",                  
+        "kms:DescribeKey",
+        "kms:ListAliases",
+        "kms:CreateAlias",
+        "kms:DeleteAlias",
+        "kms:TagResource",
+        "kms:PutKeyPolicy",
+        "kms:GetKeyPolicy"       
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "OIDCProviderManagement",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateOpenIDConnectProvider",
+        "iam:DeleteOpenIDConnectProvider",
+        "iam:ListOpenIDConnectProviders",
+        "iam:GetOpenIDConnectProvider",
+        "iam:TagOpenIDConnectProvider",
+        "iam:UntagOpenIDConnectProvider"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "STS",
+      "Effect": "Allow",
+      "Action": [
+      "sts:GetCallerIdentity",
+      "sts:AssumeRole",
+      "sts:AssumeRoleWithWebIdentity"
+     ],
+     "Resource": "*"
+    },
+    {
+    "Sid": "EKSAccess",
+    "Effect": "Allow",
+    "Action": [
+      "eks:DescribeCluster",
+      "eks:ListClusters",
+      "eks:CreateAccessEntry",
+      "eks:DeleteAccessEntry",
+      "eks:AssociateAccessPolicy",
+      "eks:DisassociateAccessPolicy",
+      "eks:UpdateClusterConfig"
+    ],
+    "Resource": "*"
+    },
+    {
+    "Sid": "EC2ReadAccess",
+    "Effect": "Allow",
+    "Action": [
+      "ec2:DescribeInstances",
+      "ec2:DescribeIamInstanceProfileAssociations",
+      "ssm:GetParameter"
+    ],
+    "Resource": "*"
+    }
+  ]
+}
