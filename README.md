@@ -29,6 +29,8 @@ Note your AWS account ID, we will use 0123456789012 as a placeholder. Change thi
       }'
     
     # Attach the policy
+
+    # Make sure you have the terraform.json from the /scripts/ folder present in CloudShell before running this command
     
     aws iam put-role-policy \
       --role-name TerraformRole \
