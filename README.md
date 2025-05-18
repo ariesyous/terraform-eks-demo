@@ -3,7 +3,7 @@ This GitHub repository contains files that you can use to set up an EKS cluster 
 
 It also contains a simple application you can deploy into the Kubernetes cluster to test it out (it's a simple nginx server). 
 
-Instructions are below on how you can get this setup and running. 
+Instructions are below on how you can get this setup and running. For an FAQ, scroll down or click [here](#FAQ).
 
 # How to get up and running
 
