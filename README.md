@@ -150,5 +150,128 @@ You'll need do this after bringing up your EKS cluster for the first time, and p
 
 Now you should be able to issue kubectl commands again without encountering authentication issues!
 
+## FAQ
+
+### Q: What is Terraform and why are we using it here?
+
+**A:** Terraform is an “infrastructure as code” tool that lets you describe AWS resources (VPCs, EKS clusters, IAM roles, etc.) in simple configuration files. When you run `terraform apply`, Terraform creates, updates, or destroys those resources for you—so you never have to click around in the Console. It keeps track of what’s been applied and shows you a plan before making changes.
+
+### Q: What is Amazon EKS?
+
+**A:** EKS (Elastic Kubernetes Service) is AWS’s managed Kubernetes control plane. It runs `etcd`, `kube‑apiserver`, `controller-manager`, etc., in AWS‑managed accounts, and exposes a highly available API endpoint. You still need to supply “worker nodes” (EC2 instances) to actually run your containers.
+
+### Q: What is **cloud‑init** and how does it work with EC2?
+
+**A:** Cloud‑init is the “user‑data” engine on most AWS AMIs. When an EC2 instance first boots, it looks at the `user_data` you provided (our bootstrap script) and executes it. We inject our security updates, custom tooling installs, and SELinux configuration here _before_ the node runs `kubeadm join`.
+
+### Q: Why do we use **self‑managed** worker nodes instead of EKS **managed node groups**?
+
+**A:** Self‑managed nodes give you full control over the EC2 instances, the AMI they use, and their user‑data (e.g. SELinux enforcement, custom tools, etc.). Managed node groups are easier to stand up, but less flexible if you need to run custom bootstrap logic.
+
+### Q: What is **SELinux**, and why enforce it on EKS nodes?
+
+**A:** SELinux is a Linux kernel feature that confines processes to strict security policies. By switching from “permissive” to “enforcing” mode, we reduce the blast radius if one of our processes is compromised. Enforcing mode ensures `kubelet`, `containerd`, and your workloads only have the minimal permissions they need.
+
+### Q: How much will running this EKS cluster cost me?
+
+**A:** Rough estimates (prices at May 2025, US‑East 1):
+
+-   Control plane: **$0.10/hour** (~$72 USD/month)
+    
+-   EC2 t3.medium nodes: **$0.0416/hour** each (~$30 USD/month per node)
+    
+-   NAT Gateway, Data Transfer, EBS volumes, etc., will add extra.  
+    Always tear down with `terraform destroy` when you’re not using it!
+
+### Q: Approximately how long does deployment take?
+
+**A:**
+
+-   **Terraform apply**: 5–10 minutes to create VPC, IAM, and control plane.
+    
+-   **Node boot & join**: another 5–7 minutes per node (cloud‑init, security updates, SELinux enforcement, kubeadm join).  
+    Total: roughly 10–15 minutes.
+
+### Q: I’m seeing `Error: Unauthorized` or `AccessDenied`; what do I check?
+
+1.  **Are you using the right AWS credentials?**
+    
+    -   Confirm you’ve `aws sts assume-role` into the `TerraformRole`.
+        
+    -   Check `echo $AWS_ACCESS_KEY_ID` matches what you expect.
+        
+2.  **Does your role have the necessary policies?**
+    
+    -   Review the attached IAM policy in the bootstrap role; make sure it includes `eks:*`, `ec2:*`, `iam:PassRole`, etc.
+
+### Q: How can I customize the cluster name or environment?
+
+Edit the `-var="env=dev"` on the command line (e.g. `-var="env=staging"`), and Terraform will automatically prefix the VPC, cluster, and node‑group names with that string.
+
+### Q: Where do I find the sample application manifests?
+
+They live in the repo at **`app.yaml`** (an Nginx Deployment + Service). You can modify that file or point to your own `.yaml` under **Step 7**.
+
+### Q: How do I access the sample application once it’s deployed?
+
+1.  Run `kubectl get svc nginx-svc -o wide` to see its **EXTERNAL-IP**.
+    
+2.  Open that IP in your browser on port 80.
+    
+    -   If you see a default Nginx page, you’re all set!
+
+### Q: How do I update the bootstrap script or install additional tools?
+
+-   Edit your shell snippet in the `cloudinit_pre_nodeadm` (or inline HEREDOC) block in `main.tf`.
+    
+-   Set `force_update_version = true` under your node‑group to roll out a new launch template version.
+    
+-   Run `terraform apply` again; your nodes will be replaced with the updated user‑data.
+
+
+
+### Q: Which AWS credentials does Terraform use?
+
+Terraform will use the AWS CLI’s default credential chain. You can either export `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` (and `AWS_SESSION_TOKEN` if you’re assuming a role), or configure a profile in `~/.aws/config` and run:
+
+`AWS_PROFILE=terraform-role terraform plan ‑var="env=dev"`
+
+### Q: Why do I need to assume an IAM role before running Terraform?
+
+Following best practices, we create a dedicated **TerraformRole** (with exactly the permissions your scripts need). You assume that role to get short‑lived credentials, instead of using long‑lived root or user keys. See **Step 3** in the README for how to `sts assume-role`.
+
+### Q: How do I restrict access to my EKS control plane?
+
+Edit the `cluster_endpoint_public_access_cidrs` list in `main.tf` to only include your IP (e.g. `["1.2.3.4/32"]`). Then `terraform apply`—the API server will refuse connections from any other source.
+
+### Q: How can I change the AWS region or account?
+
+-   **Region**: either set `AWS_DEFAULT_REGION`, configure it in `~/.aws/config`, or pass `-var="region=us-west-2"` if you add a `region` variable.
+    
+-   **Account**: Terraform writes resources into whichever AWS account your credentials point at; switch profiles or assume a different role for another account.
+
+
+### Q: How do I tear everything down?
+
+1.  Delete your test app:
+    
+    `kubectl delete -f app.yaml` 
+    
+2.  Destroy all Terraform‑managed resources:
+    
+    `terraform destroy -var="env=dev"` 
+    
+    This will remove the EKS cluster, nodes, VPC, and IAM roles you created.
+
+### Q: Where can I go for more help?
+
+-   **Terraform docs**: [https://registry.terraform.io/](https://registry.terraform.io/)
+    
+-   **AWS EKS User Guide**: [https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html](https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html)
+    
+-   **Kubernetes docs**: [https://kubernetes.io/docs/](https://kubernetes.io/docs/)
+    
+-   **Cloud‑Init reference**: [https://cloudinit.readthedocs.io/](https://cloudinit.readthedocs.io/)
+
 
 
