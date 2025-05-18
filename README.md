@@ -13,7 +13,7 @@ Step 2. Clone this git repo to your local machine.
 
 Step 3. Set up the proper AWS IAM role in your AWS account first (this is the role you'll assume when you're running the Terraform, and when you are administering the EKS cluster). 
 
-Easiest way to do this is via the AWS Management Console CloudShell in your AWS account if you're logged in as root, or with a user account that has the AdministratorAccess role. Use the existing `terraform.json` file in the `/scripts/` folder which contains all needed permissions. You can copy and paste the entire terraform.json file into your AWS CloudShell's home directory, and run the commands below in order to reference them when setting up your `TerraformRole` credentials.
+Easiest way to do this is via the AWS Management Console CloudShell in your AWS account if you're logged in as root, or with a user account that has the AdministratorAccess role. Use the existing `terraform.json` file in the `/scripts/` folder which contains all needed permissions. You can copy and paste the entire `terraform.json` file into your AWS CloudShell, and run the commands below in order to reference them when setting up your `TerraformRole` credentials.
 
 Note your AWS account ID, we will use 0123456789012 as a placeholder. Change this to your AWS account's ID. 
 
